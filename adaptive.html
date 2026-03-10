@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Adaptive Simulation</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#020408;
+color:#e0ffe0;
+overflow-x:hidden;
+}
+
+/* MATRIX CANVAS */
+
+#matrixCanvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:0;
+}
+
+/* MAIN CONTAINER */
+
+.container{
+
+position:relative;
+z-index:1;
+
+max-width:760px;
+margin:100px auto;
+padding:45px;
+
+background:rgba(0,10,0,0.75);
+backdrop-filter:blur(15px);
+
+border-radius:20px;
+
+border:1px solid #00ff9c;
+
+box-shadow:
+0 0 40px #00ff9c,
+0 0 80px rgba(0,255,120,0.5);
+
+text-align:center;
+
+}
+
+/* TITLE */
+
+h1{
+
+color:#00ff9c;
+
+text-shadow:
+0 0 10px #00ff9c,
+0 0 20px #00ff9c,
+0 0 40px #00ff9c;
+
+}
+
+/* SECTION HEADERS */
+
+h2{
+
+margin-top:25px;
+
+color:#00ffaa;
+
+text-shadow:0 0 10px #00ffaa;
+
+}
+
+/* ATTACK BOX */
+
+.attack-box{
+
+margin-top:25px;
+
+padding:22px;
+
+background:rgba(255,0,0,0.08);
+
+border-radius:14px;
+
+font-size:17px;
+
+border:1px solid rgba(255,0,0,0.6);
+
+box-shadow:
+0 0 15px red,
+inset 0 0 15px rgba(255,0,0,0.3);
+
+animation:alertPulse 1.5s infinite alternate;
+
+}
+
+/* ALERT ANIMATION */
+
+@keyframes alertPulse{
+
+from{box-shadow:0 0 10px red;}
+to{box-shadow:0 0 25px red;}
+
+}
+
+/* ADVISORY BOX */
+
+.advisory-box{
+
+margin-top:30px;
+
+padding:28px;
+
+background:rgba(0,255,150,0.08);
+
+border-radius:14px;
+
+font-size:18px;
+
+border:1px solid rgba(0,255,150,0.7);
+
+box-shadow:
+0 0 20px #00ffaa,
+0 0 10px #00ffcc;
+
+animation:aiGlow 2s infinite alternate;
+
+}
+
+/* AI GLOW */
+
+@keyframes aiGlow{
+
+from{box-shadow:0 0 15px #00ffaa;}
+to{box-shadow:0 0 35px #00ffcc;}
+
+}
+
+/* NAVIGATION */
+
+.nav{
+
+margin-top:40px;
+
+}
+
+.nav a{
+
+color:#00ff9c;
+
+text-decoration:none;
+
+margin:0 20px;
+
+font-weight:bold;
+
+padding:10px 20px;
+
+border-radius:10px;
+
+border:1px solid rgba(0,255,150,0.5);
+
+transition:0.3s;
+
+}
+
+.nav a:hover{
+
+box-shadow:
+0 0 15px #00ff9c,
+0 0 25px #00ffaa;
+
+transform:scale(1.05);
+
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="matrixCanvas"></canvas>
+
+<div class="container">
+
+<h1>🎯 Adaptive Phishing Simulation</h1>
+
+<h2>⚠ Live Phishing Attack</h2>
+
+<div class="attack-box">
+{{ message }}
+</div>
+
+<h2>🧠 AI Defense Advisory</h2>
+
+<div class="advisory-box">
+{{ advisory }}
+</div>
+
+<div class="nav">
+
+<a href="/">Analyzer</a>
+
+<a href="/profile">Cyber Risk DNA</a>
+
+</div>
+
+</div>
+
+<script>
+
+/* MATRIX BACKGROUND */
+
+const canvas=document.getElementById("matrixCanvas");
+const ctx=canvas.getContext("2d");
+
+canvas.height=window.innerHeight;
+canvas.width=window.innerWidth;
+
+const letters="01アイウエオカキクケコサシスセソABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const matrix=letters.split("");
+
+const fontSize=16;
+const columns=canvas.width/fontSize;
+
+const drops=[];
+
+for(let x=0;x<columns;x++)
+drops[x]=1;
+
+function draw(){
+
+ctx.fillStyle="rgba(0,0,0,0.08)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="#00ff9c";
+ctx.font=fontSize+"px monospace";
+
+for(let i=0;i<drops.length;i++){
+
+const text=matrix[Math.floor(Math.random()*matrix.length)];
+
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0;
+
+drops[i]++;
+
+}
+
+}
+
+setInterval(draw,35);
+
+window.addEventListener("resize",()=>{
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Cyber Defense Academy</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:#0b0b0b;
+    color:#f1f5f9;
+    text-align:center;
+    overflow:hidden;
+}
+
+/* PARTICLE CANVAS */
+
+#academyCanvas{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+}
+
+/* MAIN PANEL */
+
+.container{
+    position:relative;
+    z-index:1;
+    max-width:720px;
+    margin:90px auto;
+    padding:45px;
+    background:rgba(25,15,10,0.9);
+    border-radius:22px;
+    border:1px solid rgba(255,120,0,0.4);
+    box-shadow:
+        0 0 40px rgba(255,80,0,0.7),
+        0 0 80px rgba(255,150,0,0.3);
+    backdrop-filter:blur(15px);
+}
+
+/* TITLE */
+
+h1{
+    color:#ff7a00;
+    text-shadow:
+        0 0 10px #ff7a00,
+        0 0 25px #ff3c00;
+}
+
+/* QUESTION NUMBER */
+
+.qnum{
+    margin-top:10px;
+    font-size:15px;
+    color:#f97316;
+    opacity:0.9;
+}
+
+/* PROGRESS BAR */
+
+.progress{
+    width:100%;
+    height:8px;
+    background:#1e293b;
+    border-radius:20px;
+    margin-top:15px;
+    overflow:hidden;
+}
+
+.progress-fill{
+    height:8px;
+    background:linear-gradient(90deg,#ff7a00,#ff3c00);
+    transition:width 0.5s ease;
+}
+
+/* QUESTION */
+
+.message{
+    margin-top:35px;
+    padding:28px;
+    background:rgba(255,80,0,0.07);
+    border-radius:16px;
+    font-size:18px;
+    border:1px solid rgba(255,120,0,0.4);
+    box-shadow:
+        0 0 20px rgba(255,120,0,0.6),
+        inset 0 0 10px rgba(255,80,0,0.4);
+}
+
+/* BUTTONS */
+
+button{
+    margin:20px;
+    padding:16px 34px;
+    font-size:17px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+/* SAFE BUTTON */
+
+.safe{
+    background:linear-gradient(135deg,#22c55e,#15803d);
+    color:white;
+    box-shadow:
+        0 0 15px #22c55e,
+        0 0 30px #15803d;
+}
+
+.safe:hover{
+    transform:scale(1.08);
+}
+
+/* PHISH BUTTON */
+
+.phish{
+    background:linear-gradient(135deg,#ef4444,#b91c1c);
+    color:white;
+    box-shadow:
+        0 0 15px #ef4444,
+        0 0 30px #b91c1c;
+}
+
+.phish:hover{
+    transform:scale(1.08);
+}
+
+/* START BUTTON */
+
+.start{
+    background:linear-gradient(135deg,#ff7a00,#ff3c00);
+    color:white;
+    box-shadow:
+        0 0 20px #ff7a00,
+        0 0 40px #ff3c00;
+}
+
+.start:hover{
+    transform:scale(1.1);
+}
+
+/* RESULT */
+
+.result{
+    margin-top:30px;
+    font-size:20px;
+    font-weight:bold;
+    color:#facc15;
+    text-shadow:0 0 10px #facc15;
+}
+
+/* NAVIGATION */
+
+.nav{
+    margin-top:40px;
+}
+
+.nav a{
+    color:#f97316;
+    text-decoration:none;
+    margin:0 20px;
+    font-weight:bold;
+    padding:10px 20px;
+    border-radius:10px;
+    border:1px solid rgba(255,120,0,0.6);
+    transition:0.3s;
+}
+
+.nav a:hover{
+    box-shadow:
+        0 0 15px #ff7a00,
+        0 0 25px #ff3c00;
+    transform:scale(1.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<canvas id="academyCanvas"></canvas>
+
+<div class="container">
+
+<h1>🎓 Cyber Defense Academy</h1>
+
+{% if finished %}
+
+<h2>Training Complete</h2>
+
+<div class="result">
+Score: {{ score }} / 5
+</div>
+
+<div class="message">
+{{ feedback }}
+</div>
+
+<a href="/training">
+<button class="start">Restart Training</button>
+</a>
+
+{% elif message %}
+
+<div class="qnum">
+Question {{ session.q + 1 }} / 5
+</div>
+
+<div class="progress">
+<div class="progress-fill" style="width: {{ ((session.q + 1) / 5) * 100 }}%"></div>
+</div>
+
+<div class="message">
+
+⚠ Identify the message type
+
+<br><br>
+
+<b>{{ message }}</b>
+
+</div>
+
+<form method="POST">
+
+<!-- DEFAULT STILL PHISHING IF BACKEND DOESN'T SEND -->
+
+<input type="hidden" name="correct" value="{{ correct_answer if correct_answer else 'phishing' }}">
+
+<button class="safe" name="answer" value="safe">
+🟢 SAFE
+</button>
+
+<button class="phish" name="answer" value="phishing">
+🔴 PHISHING
+</button>
+
+</form>
+
+{% else %}
+
+<p>Test your ability to detect phishing attacks.</p>
+
+<a href="/training">
+<button class="start">
+🚀 Start Training
+</button>
+</a>
+
+{% endif %}
+
+<div class="nav">
+<a href="/">Analyzer</a>
+<a href="/profile">Dashboard</a>
+</div>
+
+</div>
+
+<script>
+
+/* PARTICLE BACKGROUND */
+
+const canvas = document.getElementById("academyCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+class Particle{
+
+constructor(){
+this.x = Math.random() * canvas.width;
+this.y = Math.random() * canvas.height;
+this.size = Math.random() * 4 + 1;
+this.speedX = (Math.random() - 0.5) * 1;
+this.speedY = (Math.random() - 0.5) * 1;
+}
+
+update(){
+this.x += this.speedX;
+this.y += this.speedY;
+
+if(this.x < 0 || this.x > canvas.width)
+this.speedX *= -1;
+
+if(this.y < 0 || this.y > canvas.height)
+this.speedY *= -1;
+}
+
+draw(){
+ctx.fillStyle = "rgba(255,120,0,0.8)";
+ctx.shadowColor = "#ff7a00";
+ctx.shadowBlur = 10;
+
+ctx.beginPath();
+ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+ctx.fill();
+}
+
+}
+
+for(let i = 0; i < 90; i++){
+particles.push(new Particle());
+}
+
+function animate(){
+
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+particles.forEach((p, i) => {
+
+p.update();
+p.draw();
+
+for(let j = i; j < particles.length; j++){
+
+let dx = p.x - particles[j].x;
+let dy = p.y - particles[j].y;
+
+let dist = Math.sqrt(dx * dx + dy * dy);
+
+if(dist < 120){
+
+ctx.beginPath();
+ctx.strokeStyle = "rgba(255,120,0,0.15)";
+ctx.lineWidth = 1;
+
+ctx.moveTo(p.x, p.y);
+ctx.lineTo(particles[j].x, particles[j].y);
+
+ctx.stroke();
+}
+
+}
+
+});
+
+requestAnimationFrame(animate);
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+});
+
+</script>
+
+</body>
+
+</html>
